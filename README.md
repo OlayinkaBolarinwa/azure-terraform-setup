@@ -1,44 +1,47 @@
 # Terraform Azure Project – Personal Build Log
 
-Terraform Azure Project – Personal Build Log
+This is my first Terraform setup for a basic Azure environment. It includes a virtual machine, networking, logging, and diagnostics. The purpose was to build everything from scratch using the AzureRM provider and learn how to manage infrastructure as code.
 
-This is my first Terraform setup in a simple Azure environment with a VM, networking, diagnostics, and logging. The goal was to build everything from scratch and get familiar with infrastructure-as-code using the AzureRM provider
-What’s Included
-Resource Group
+---
 
-Virtual Network
+## What’s Included
 
-Subnet
+- Resource Group  
+- Virtual Network  
+- Subnet  
+- Network Security Group (NSG) with an inbound HTTP rule  
+- Public IP (Static, Standard SKU)  
+- Network Interface  
+- Windows Virtual Machine (Windows Server 2019)  
+- Log Analytics Workspace  
+- Diagnostic Settings for the VM and NSG  
 
-Network Security Group (NSG) with inbound HTTP rule
+---
 
-Public IP (static)
+## Configuration Overview
 
-Network Interface
+Everything is written in one `main.tf` file. The virtual machine runs Windows Server 2019. The NSG allows HTTP traffic, and the public IP is configured as static. Tags are used to keep resources grouped under `environment = "dev"`.
 
-Windows Virtual Machine
+---
 
-Log Analytics Workspace
+## Error Encountered
 
-Diagnostic Settings for both the VM and NSG
+When setting up diagnostic settings for the VM and NSG, I got this error:
 
-
-I wrote everything in one main.tf file. It includes all resources mentioned above. The VM is running Windows Server 2019, and the NSG is allowing HTTP traffic.
-
-Public IP is set to static and standard SKU. Tags are applied to keep things organized under environment = "dev".
-
-I hit this error while trying to set up diagnostic settings for the VM and NSG:
 Error: "enabled_logs": blocks of type "enabled_logs" are not expected here.
-with azurerm_monitor_diagnostic_setting.project_vm_diagnostics,
+with azurerm_monitor_diagnostic_setting.project_vm_diagnostics
 
 
-Same thing happened for enabled_metric.
 
-This was super confusing at first because all examples I saw online still used enabled_logs, but it turns out that syntax is deprecated as of newer versions of the AzureRM provider (I’m using ~> 3.117.1).
+The same happened with `enabled_metric`.
 
+This happened because the `enabled_logs` and `enabled_metric` blocks are no longer supported in the newer AzureRM provider version (`~> 3.117.1`).
 
-Fix
-To fix the diagnostic settings, I had to replace this:
+---
+
+## Fix
+
+I changed this:
 
 
 enabled_logs {
@@ -46,26 +49,8 @@ enabled_logs {
   enabled  = true
 }
 
-With this:
-
-
-log {
-  category = "Administrative"
-  enabled  = true
-}
-
 
 And this:
-
-
-enabled_metric {
-  category = "AllMetrics"
-  enabled  = true
-}
-
-
-With:
-
 
 metric {
   category = "AllMetrics"
@@ -74,24 +59,33 @@ metric {
 
 
 
-Basically, just swap out enabled_logs → log and enabled_metric → metric. After making those changes for both the VM and NSG diagnostics, Terraform was happy again.
+terraform init
+terraform plan
+terraform apply
 
 
-After the fix, everything deployed cleanly:
+Everything deployed successfully:
 
-terraform init 
+VM is running
 
-terraform plan 
+NSG rules are working
 
-terraform apply 
+Diagnostics are being sent to Log Analytics
 
-Got the VM running with a public IP, NSG rules applied, and diagnostics streaming to Log Analytics. No manual clicks in the portal — everything managed via Terraform.
+No manual setup was needed in the Azure Portal
+
+
+Notes:
+Always check the official Terraform documentation when something doesn't work.
+
+The syntax for diagnostic settings changes between provider versions.
+
+Using log and metric is the correct format for newer versions.
+
+Later, this could be split into modules or separate files, but keeping everything in one file helped during the learning phase.
 
 
 
-Notes to Self
-Always double-check the Terraform provider docs when something breaks. Stuff changes.
+---
 
-Diagnostic settings seem to break often between provider versions — use log and metric, not enabled_logs.
 
-Might want to split this into modules or files later, but for testing and learning, keeping it in one file was easier to manage.
