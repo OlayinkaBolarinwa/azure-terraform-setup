@@ -82,10 +82,39 @@ The syntax for diagnostic settings changes between provider versions.
 
 Using log and metric is the correct format for newer versions.
 
-Later, this could be split into modules or separate files, but keeping everything in one file helped during the learning phase.
 
 
 
----
+---![Resource Group](https://github.com/user-attachments/assets/c5365a2e-bc43-4984-bf88-f6a27afc57c7)
+
+
+![Virtual Network](https://github.com/user-attachments/assets/e77a0379-ac55-4093-9604-62cea4e09536)
+
+
+![Subnet](https://github.com/user-attachments/assets/489ff5cd-9c93-4202-809b-a56c7967ecb4)
+
+
+![Network Security Group (NSG)](https://github.com/user-attachments/assets/3c962cd7-7b3f-49c9-89c7-2e6d0b5451ff)
+
+
+![Public IP](https://github.com/user-attachments/assets/e87937f9-cfc6-429e-8735-ae40950494bc)
+
+
+![Network Interface](https://github.com/user-attachments/assets/2a09dc95-0089-46c0-b4c1-f6bb28ca7a97)
+
+
+![Windows Virtual Machine](https://github.com/user-attachments/assets/5b7f39a7-1ee8-4f40-9d0b-8c0aeea3ee9f)
+
+
+![Log Analytics Workspace](https://github.com/user-attachments/assets/1f6c1807-322e-45e6-ac49-32e07a87f5f3)
+
+
+![VM Diagnostic Settings](https://github.com/user-attachments/assets/24f5b588-de43-4b6a-ad02-6173d2c70f3c)
+
+
+![NSG Diagnostic Settings](https://github.com/user-attachments/assets/a9f4a5a9-ca72-416c-99d9-4db21628308e)
+
+
+![Terraform Apply Output](https://github.com/user-attachments/assets/460d5538-9579-4eee-b21b-31ecabf01f1f)
 
 
