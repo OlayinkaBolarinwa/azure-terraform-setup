@@ -29,5 +29,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Debug Secrets
+        run: echo "TF_ADMIN_PASSWORD length: ${#TF_ADMIN_PASSWORD}"
+        env:
+          TF_ADMIN_PASSWORD: ${{ secrets.TF_ADMIN_PASSWORD }}
+
       - name: Terraform Plan
         run: terraform plan -out=tfplan -var "admin_password=${{ secrets.TF_ADMIN_PASSWORD }}"
