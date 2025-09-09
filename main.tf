@@ -80,7 +80,8 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   location            = azurerm_resource_group.project.location
   size                = "Standard_B1s"
   admin_username      = "azureuser"
-  admin_password      = var.admin_password 
+  admin_password      = var.admin_password  # Passed via GitHub secret
+
   network_interface_ids = [
     azurerm_network_interface.project_nic.id
   ]
@@ -98,7 +99,7 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   }
 }
 
-# Variables for sensitive info
+# Sensitive variables
 variable "admin_password" {
   type      = string
   sensitive = true
