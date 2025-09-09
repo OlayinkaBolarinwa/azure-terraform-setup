@@ -10,24 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # 1. Checkout repo
+      - name: Checkout
         uses: actions/checkout@v3
 
+      # 2. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.13.1
+          terraform_version: 1.7.7
 
+      # 3. Azure login using SP credentials
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # 4. Terraform init
       - name: Terraform Init
         run: terraform init
 
+      # 5. Terraform plan
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -var "admin_password=${{ secrets.TF_ADMIN_PASSWORD }}"
 
+      # 6. Terraform apply only on main
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -var "admin_password=${{ secrets.TF_ADMIN_PASSWORD }}"
