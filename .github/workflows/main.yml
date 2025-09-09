@@ -1,9 +1,12 @@
-name: Terraform Deploy
+name: Terraform Deploy to Azure
 
 on:
   push:
     branches:
       - main
+
+env:
+  TF_WORKING_DIR: "."
 
 jobs:
   deploy:
@@ -13,18 +16,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.13.1
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -var "admin_password=${{ secrets.TF_ADMIN_PASSWORD }}"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
