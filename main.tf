@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.117.1"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
   }
 }
 
@@ -11,9 +15,14 @@ provider "azurerm" {
   features {}
 }
 
+# Generate suffix for uniqueness
+resource "random_id" "suffix" {
+  byte_length = 2
+}
+
 # Resource Group
 resource "azurerm_resource_group" "project" {
-  name     = "project-resources"
+  name     = "project-resources-${random_id.suffix.hex}"
   location = "eastus2"
 
   tags = {
@@ -98,9 +107,9 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   name                  = "project-vm"
   location              = azurerm_resource_group.project.location
   resource_group_name   = azurerm_resource_group.project.name
-  size                  = "Standard_B1ms"  # stable size
+  size                  = "Standard_B1ms"
   admin_username        = "azureuser"
-  admin_password        = "Yinkus1985@"  # Use GitHub secrets in production
+  admin_password        = "Yinkus1985@" # Use GitHub Secrets for production
   network_interface_ids = [azurerm_network_interface.project_nic.id]
 
   os_disk {
@@ -118,14 +127,14 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
 
 # Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "project_workspace" {
-  name                = "project-law"
+  name                = "project-law-${random_id.suffix.hex}"
   location            = azurerm_resource_group.project.location
   resource_group_name = azurerm_resource_group.project.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
 }
 
-# VM Diagnostic Setting (AzureRM v3 syntax)
+# VM Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   name                       = "vm-diagnostics"
   target_resource_id         = azurerm_windows_virtual_machine.project_vm.id
@@ -156,7 +165,7 @@ resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   }
 }
 
-# NSG Diagnostic Setting (logs only, metrics optional)
+# NSG Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
   name                       = "nsg-diagnostics"
   target_resource_id         = azurerm_network_security_group.project_nsg.id
@@ -164,6 +173,14 @@ resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
 
   log {
     category = "NetworkSecurityGroupEvent"
+    retention_policy {
+      enabled = true
+      days    = 30
+    }
+  }
+
+  metric {
+    category = "AllMetrics"
     retention_policy {
       enabled = true
       days    = 30
