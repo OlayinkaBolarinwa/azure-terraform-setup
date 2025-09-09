@@ -14,7 +14,7 @@ provider "azurerm" {
 # Resource Group
 resource "azurerm_resource_group" "project" {
   name     = "project-resources"
-  location = "eastus2"  # Stable region
+  location = "eastus2"
 
   tags = {
     environment = "dev"
@@ -100,7 +100,7 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   resource_group_name   = azurerm_resource_group.project.name
   size                  = "Standard_B1ms"  # stable size
   admin_username        = "azureuser"
-  admin_password        = "Yinkus1985@"  # Use secure secret in production
+  admin_password        = "Yinkus1985@"  # Use GitHub secrets in production
   network_interface_ids = [azurerm_network_interface.project_nic.id]
 
   os_disk {
@@ -125,36 +125,48 @@ resource "azurerm_log_analytics_workspace" "project_workspace" {
   retention_in_days   = 30
 }
 
-# VM Diagnostic Setting
+# VM Diagnostic Setting (AzureRM v3 syntax)
 resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   name                       = "vm-diagnostics"
   target_resource_id         = azurerm_windows_virtual_machine.project_vm.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-  enabled_log {
+  log {
     category = "Administrative"
-    enabled  = true
+    retention_policy {
+      enabled = true
+      days    = 30
+    }
   }
 
-  enabled_log {
+  log {
     category = "Security"
-    enabled  = true
+    retention_policy {
+      enabled = true
+      days    = 30
+    }
   }
 
-  enabled_metric {
+  metric {
     category = "AllMetrics"
-    enabled  = true
+    retention_policy {
+      enabled = true
+      days    = 30
+    }
   }
 }
 
-# NSG Diagnostic Setting (no metrics)
+# NSG Diagnostic Setting (logs only, metrics optional)
 resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
   name                       = "nsg-diagnostics"
   target_resource_id         = azurerm_network_security_group.project_nsg.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-  enabled_log {
+  log {
     category = "NetworkSecurityGroupEvent"
-    enabled  = true
+    retention_policy {
+      enabled = true
+      days    = 30
+    }
   }
 }
