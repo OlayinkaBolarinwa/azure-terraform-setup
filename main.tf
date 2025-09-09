@@ -100,7 +100,7 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   resource_group_name   = azurerm_resource_group.project.name
   size                  = "Standard_DS1_v2"
   admin_username        = "azureuser"
-  admin_password        = "Yinkus1985@"  # Replace with secure password
+  admin_password        = "Yinkus1985@"  # Replace with a secure secret
   network_interface_ids = [azurerm_network_interface.project_nic.id]
 
   os_disk {
@@ -131,17 +131,17 @@ resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   target_resource_id         = azurerm_windows_virtual_machine.project_vm.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-  enabled_logs {
+  log {
     category = "Administrative"
     enabled  = true
   }
 
-  enabled_logs {
+  log {
     category = "Security"
     enabled  = true
   }
 
-  enabled_metric {
+  metric {
     category = "AllMetrics"
     enabled  = true
   }
@@ -153,12 +153,12 @@ resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
   target_resource_id         = azurerm_network_security_group.project_nsg.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-  enabled_logs {
+  log {
     category = "NetworkSecurityGroupEvent"
     enabled  = true
   }
 
-  enabled_metric {
+  metric {
     category = "AllMetrics"
     enabled  = true
   }
