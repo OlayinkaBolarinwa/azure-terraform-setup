@@ -131,19 +131,6 @@ resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   target_resource_id         = azurerm_windows_virtual_machine.project_vm.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-}
-# Diagnostic Setting for NSG
-resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
-  name                       = "nsg-diagnostics"
-  target_resource_id         = azurerm_network_security_group.project_nsg.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
-
-}
-resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
-  name                       = "vm-diagnostics"
-  target_resource_id         = azurerm_windows_virtual_machine.project_vm.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
-
   enabled_logs {
     category = "Administrative"
     enabled  = true
@@ -160,6 +147,7 @@ resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   }
 }
 
+# Diagnostic Setting for NSG
 resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
   name                       = "nsg-diagnostics"
   target_resource_id         = azurerm_network_security_group.project_nsg.id
