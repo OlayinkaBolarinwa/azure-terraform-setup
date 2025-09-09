@@ -14,7 +14,7 @@ provider "azurerm" {
 # Resource Group
 resource "azurerm_resource_group" "project" {
   name     = "project-resources"
-  location = "eastus"
+  location = "eastus2"  # Stable region
 
   tags = {
     environment = "dev"
@@ -98,9 +98,9 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   name                  = "project-vm"
   location              = azurerm_resource_group.project.location
   resource_group_name   = azurerm_resource_group.project.name
-  size                  = "Standard_DS1_v2"
+  size                  = "Standard_B1ms"  # stable size
   admin_username        = "azureuser"
-  admin_password        = "Yinkus1985@"  # Replace with a secure secret
+  admin_password        = "Yinkus1985@"  # Use secure secret in production
   network_interface_ids = [azurerm_network_interface.project_nic.id]
 
   os_disk {
@@ -125,41 +125,36 @@ resource "azurerm_log_analytics_workspace" "project_workspace" {
   retention_in_days   = 30
 }
 
-# Diagnostic Setting for VM
+# VM Diagnostic Setting
 resource "azurerm_monitor_diagnostic_setting" "project_vm_diagnostics" {
   name                       = "vm-diagnostics"
   target_resource_id         = azurerm_windows_virtual_machine.project_vm.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-  log {
+  enabled_log {
     category = "Administrative"
     enabled  = true
   }
 
-  log {
+  enabled_log {
     category = "Security"
     enabled  = true
   }
 
-  metric {
+  enabled_metric {
     category = "AllMetrics"
     enabled  = true
   }
 }
 
-# Diagnostic Setting for NSG
+# NSG Diagnostic Setting (no metrics)
 resource "azurerm_monitor_diagnostic_setting" "project_nsg_diagnostics" {
   name                       = "nsg-diagnostics"
   target_resource_id         = azurerm_network_security_group.project_nsg.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.project_workspace.id
 
-  log {
+  enabled_log {
     category = "NetworkSecurityGroupEvent"
-    enabled  = true
-  }
-
-  metric {
-    category = "AllMetrics"
     enabled  = true
   }
 }
