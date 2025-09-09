@@ -2,7 +2,7 @@ provider "azurerm" {
   features {}
 }
 
-# Random suffix for unique names
+# Random suffix for unique resource names
 resource "random_id" "suffix" {
   byte_length = 2
 }
@@ -60,7 +60,7 @@ resource "azurerm_network_interface" "project_nic" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.project_subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id           = azurerm_public_ip.project_public_ip.id
+    public_ip_address_id          = azurerm_public_ip.project_public_ip.id
   }
 }
 
@@ -80,8 +80,7 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   location            = azurerm_resource_group.project.location
   size                = "Standard_B1s"
   admin_username      = "azureuser"
-  admin_password      = "Password123!" 
-
+  admin_password      = var.admin_password 
   network_interface_ids = [
     azurerm_network_interface.project_nic.id
   ]
@@ -99,3 +98,8 @@ resource "azurerm_windows_virtual_machine" "project_vm" {
   }
 }
 
+# Variables for sensitive info
+variable "admin_password" {
+  type      = string
+  sensitive = true
+}
