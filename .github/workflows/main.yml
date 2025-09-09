@@ -1,4 +1,4 @@
-name: Terraform Deploy
+name: Terraform Plan
 
 on:
   push:
@@ -9,30 +9,17 @@ jobs:
   terraform-plan:
     runs-on: ubuntu-latest
 
-    env:
-      TF_WORKING_DIR: .
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.13.1
 
-      - name: Azure Login
-        uses: azure/login@v1
+      - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
 
-      - name: Debug Secrets
-        run: echo "TF_ADMIN_PASSWORD length: ${#TF_ADMIN_PASSWORD}"
-        env:
-          TF_ADMIN_PASSWORD: ${{ secrets.TF_ADMIN_PASSWORD }}
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan -var "admin_password=${{ secrets.TF_ADMIN_PASSWORD }}"
+      - run: terraform plan -out=tfplan -var "admin_password=${{ secrets.TF_ADMIN_PASSWORD }}"
